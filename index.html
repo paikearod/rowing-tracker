@@ -655,7 +655,7 @@ async function guardarSesion() {
     fcMax:     document.getElementById('f-fcmax').value    || '',
     spm:       document.getElementById('f-spm').value      || '',
     calorias:  document.getElementById('f-calorias').value || '',
-    distKm:    document.getElementById('f-dist').value     || '',
+    distKm:    (document.getElementById('f-dist').value || '').replace(',','.') || '',
     watts:     document.getElementById('f-watts').value    || '',
     sensacion: sensacionSeleccionada,
     notas:     document.getElementById('f-notas').value,
