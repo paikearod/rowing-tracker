@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ROD Rowing">
@@ -36,22 +37,29 @@
     --nav-h:     64px;
   }
 
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    -webkit-font-smoothing: antialiased;
-  }
+ html {
+  font-size: clamp(14px, 4vw, 18px);
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
 
   /* ── APP SHELL ── */
   #app {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    overflow: hidden;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+}
 
   /* ── SCREENS ── */
   .screen {
@@ -674,9 +682,9 @@
         <input type="number" class="form-input" id="f-duracion" placeholder="45" inputmode="numeric">
       </div>
       <div class="form-group">
-        <label class="form-label">Split prom.</label>
-        <input type="text" class="form-input" id="f-split" placeholder="2:28" inputmode="text">
-      </div>
+  <label class="form-label">Duración (MM:SS.mmm)</label>
+  <input type="text" class="form-input" id="f-duracion" placeholder="45:32.450" inputmode="text">
+</div>
     </div>
 
     <div class="form-row">
@@ -822,7 +830,7 @@
 // ══════════════════════════════════════════════════════
 // CONFIGURACIÓN — cambia solo esta URL
 // ══════════════════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycbzoQIB59KkYNXnnsxDbJ0IjqGpAPQGEvo5kuF7ScVHvd5InPqoqJxB0xsTzdwWGZUZj/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxgwJ_sxRZ8pKsMHtVtjU6CzF-NwMWsdaOeaU0Z_x-OZPED4VsW9dPWBkwZ7M-pzIJi/exec";
 
 // ── Navegación ────────────────────────────────────────
 function goTo(screen, btn) {
@@ -931,46 +939,46 @@ async function guardarSesion() {
   const btn = document.getElementById('btn-guardar');
 
   // Validación mínima
-  const split = document.getElementById('f-split').value.trim();
-  const duracion = document.getElementById('f-duracion').value;
-  if (!duracion || !split) {
-    showToast('Duración y split son obligatorios', true);
+  const split    = document.getElementById('f-split').value.trim();
+  const duracion = document.getElementById('f-duracion').value.trim();
+  if (!duracion) {
+    showToast('La duración es obligatoria', true);
     return;
   }
 
   btn.classList.add('loading');
   btn.textContent = 'Guardando...';
 
-  // Formatear fecha para el Sheet
+  // Formatear fecha
   const fechaInput = document.getElementById('f-fecha').value;
   const [y, m, d] = fechaInput.split('-');
   const fechaFormateada = `${d}/${m}/${y}`;
 
-  const datos = {
+  // Construir URL con parámetros — evita CORS
+  // encodeURIComponent convierte caracteres especiales para que
+  // viajen bien en una URL (ej: "2:28" → "2%3A28")
+  const params = new URLSearchParams({
+    accion:    'guardar',
     fecha:     fechaFormateada,
-    semana:    parseInt(document.getElementById('f-semana').value),
+    semana:    document.getElementById('f-semana').value,
     tipo:      document.getElementById('f-tipo').value,
-    duracion:  parseInt(duracion),
+    duracion:  duracion,
     split:     split,
-    fcProm:    parseInt(document.getElementById('f-fcprom').value) || '',
-    fcMax:     parseInt(document.getElementById('f-fcmax').value)  || '',
-    calorias:  parseInt(document.getElementById('f-calorias').value) || '',
+    fcProm:    document.getElementById('f-fcprom').value || '',
+    fcMax:     document.getElementById('f-fcmax').value  || '',
+    calorias:  document.getElementById('f-calorias').value || '',
     sensacion: sensacionSeleccionada,
     notas:     document.getElementById('f-notas').value,
-  };
+  });
 
   try {
-    const res = await fetch(API_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(datos),
-    });
+    const res    = await fetch(`${API_URL}?${params.toString()}`);
     const result = await res.json();
 
     if (result.ok) {
       showToast('✓ Sesión guardada correctamente');
       limpiarFormulario();
-      graficosLoaded = false; // forzar recarga de gráficos
+      graficosLoaded = false;
     } else {
       showToast('Error: ' + (result.error || 'Intenta de nuevo'), true);
     }
