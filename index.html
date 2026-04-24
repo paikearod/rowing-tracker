@@ -130,6 +130,32 @@ option{background:var(--bg2)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.error{border-color:var(--red);color:var(--red)}
 
+/* HEATMAP */
+.heatmap-card{margin:0 1rem 0.75rem;background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.25rem}
+.heatmap-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+.heatmap-title{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.heatmap-subtitle{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--text)}
+.heatmap-streak{font-family:var(--mono);font-size:11px;color:var(--gold);text-align:right}
+.heatmap-streak-num{font-size:20px;font-weight:500;color:var(--gold);display:block}
+.heatmap-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:12px}
+.heatmap-day{aspect-ratio:1;border-radius:3px;background:#2a2a35;cursor:pointer;transition:transform 0.1s}
+.heatmap-day:active{transform:scale(1.3)}
+.heatmap-day.suave{background:#1d9e75}
+.heatmap-day.media{background:#ef9f27}
+.heatmap-day.fuerte{background:#e24b4a}
+.heatmap-day.pr{background:#22c1d9;box-shadow:0 0 6px rgba(34,193,217,0.5)}
+.heatmap-legend{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:8px}
+.heatmap-legend-row{display:flex;align-items:center;gap:6px}
+.heatmap-legend-box{width:11px;height:11px;border-radius:2px}
+.heatmap-stats{display:flex;justify-content:space-around;padding-top:12px;border-top:0.5px solid var(--border);margin-top:12px}
+.heatmap-stat{text-align:center}
+.heatmap-stat-val{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text)}
+.heatmap-stat-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:0.06em}
+.heatmap-tooltip{position:fixed;background:var(--bg2);border:0.5px solid var(--accent);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--text);z-index:300;pointer-events:none;opacity:0;transition:opacity 0.15s;max-width:200px}
+.heatmap-tooltip.show{opacity:1}
+.heatmap-tooltip .tt-fecha{color:var(--accent-l);margin-bottom:4px}
+.heatmap-tooltip .tt-tipo{color:var(--text2);font-size:10px}
+  
 /* GRAFICOS */
 .chart-card{margin:0 1rem 0.75rem;background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.25rem}
 .chart-title{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
