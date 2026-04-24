@@ -883,6 +883,9 @@ async function cargarGraficos() {
     const data = await res.json();
     const sess = data.sesiones || [];
 
+// Dibujar heatmap antes de los gráficos
+    dibujarHeatmap(sess);
+    
     if (sess.length === 0) {
       document.getElementById('graf-loading').innerHTML =
         '<span style="color:var(--text3);font-size:12px;font-family:var(--mono)">Sin datos todavía</span>';
