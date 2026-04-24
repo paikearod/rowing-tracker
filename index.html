@@ -774,6 +774,109 @@ function limpiarFormulario() {
 let graficosLoaded = false;
 let chartSplit, chartFC, chartKM;
 
+// ══════════════════════════════════════════════════════
+// HEATMAP DE CONSISTENCIA
+// ══════════════════════════════════════════════════════
+function dibujarHeatmap(sesiones) {
+
+  const grid = document.getElementById('hm-grid');
+  grid.innerHTML = '';
+
+  // Construir mapa de sesiones por fecha (YYYY-MM-DD)
+  // Si hay múltiples sesiones en un día, sumamos las calorías
+  // y consideramos PR si cualquiera tuvo PR
+  const sesionesPorDia = {};
+  sesiones.forEach(s => {
+    if (!s.fechaISO) return;
+    if (!sesionesPorDia[s.fechaISO]) {
+      sesionesPorDia[s.fechaISO] = {
+        calorias: 0,
+        tienePR:  false,
+        tipos:    [],
+      };
+    }
+    sesionesPorDia[s.fechaISO].calorias += s.calorias || 0;
+    sesionesPorDia[s.fechaISO].tienePR   = sesionesPorDia[s.fechaISO].tienePR || s.tienePR;
+    if (s.tipo) sesionesPorDia[s.fechaISO].tipos.push(s.tipo);
+  });
+
+  // Generar 84 días (12 semanas) hacia atrás desde hoy
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const dias = [];
+  for (let i = 83; i >= 0; i--) {
+    const d = new Date(hoy);
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    dias.push({ fecha: d, iso, datos: sesionesPorDia[iso] });
+  }
+
+  // Calcular estadísticas
+  let diasActivos = 0;
+  let totalPRs    = 0;
+  let rachaActual = 0;
+  let rachaTemp   = 0;
+
+  // Para la racha, recorremos desde hoy hacia atrás
+  // y contamos días consecutivos con sesión
+  for (let i = dias.length - 1; i >= 0; i--) {
+    if (dias[i].datos) {
+      rachaTemp++;
+      if (i === dias.length - 1 || rachaActual > 0) rachaActual = rachaTemp;
+    } else {
+      // Si el día sin sesión es HOY, todavía cuenta la racha de ayer
+      if (i === dias.length - 1) continue;
+      break;
+    }
+  }
+
+  // Dibujar cada día como un cuadradito
+  dias.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'heatmap-day';
+
+    if (d.datos) {
+      diasActivos++;
+      if (d.datos.tienePR) {
+        cell.classList.add('pr');
+        totalPRs++;
+      } else {
+        // Clasificar por calorías
+        const cal = d.datos.calorias;
+        if      (cal < 250) cell.classList.add('suave');
+        else if (cal <= 450) cell.classList.add('media');
+        else                 cell.classList.add('fuerte');
+      }
+
+      // Tooltip on tap
+      cell.addEventListener('click', e => {
+        const tt = document.getElementById('hm-tooltip');
+        const fecha = d.fecha.toLocaleDateString('es-CL', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const cal = d.datos.calorias;
+        const tipos = d.datos.tipos.join(', ');
+        const prTag = d.datos.tienePR ? ' 🏆' : '';
+        tt.innerHTML = `<div class="tt-fecha">${fecha}${prTag}</div>
+                        <div class="tt-tipo">${tipos}</div>
+                        <div class="tt-tipo">${cal} kcal</div>`;
+        const rect = cell.getBoundingClientRect();
+        tt.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
+        tt.style.top  = (rect.bottom + 6) + 'px';
+        tt.classList.add('show');
+        setTimeout(() => tt.classList.remove('show'), 2500);
+      });
+    }
+    grid.appendChild(cell);
+  });
+
+  // Actualizar estadísticas
+  document.getElementById('hm-streak').textContent  = rachaActual;
+  document.getElementById('hm-activos').textContent = diasActivos + '/84';
+  document.getElementById('hm-prs').textContent     = totalPRs;
+  document.getElementById('hm-pct').textContent     = Math.round(diasActivos/84*100) + '%';
+}
+  
 async function cargarGraficos() {
   try {
     const res  = await fetch(`${API_URL}?accion=sesiones`);
