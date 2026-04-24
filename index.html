@@ -369,6 +369,45 @@ option{background:var(--bg2)}
       <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
     </div>
     <div id="graf-content" style="display:none">
+
+      <!-- HEATMAP -->
+      <div class="heatmap-card fade-up">
+        <div class="heatmap-header">
+          <div>
+            <div class="heatmap-title">Consistencia</div>
+            <div class="heatmap-subtitle">Últimas 12 semanas</div>
+          </div>
+          <div class="heatmap-streak">
+            <span class="heatmap-streak-num" id="hm-streak">0</span>
+            🔥 racha
+          </div>
+        </div>
+        <div class="heatmap-grid" id="hm-grid"></div>
+        <div class="heatmap-legend">
+          <span style="color:var(--text2)">Intensidad por calorías:</span>
+          <div class="heatmap-legend-row">
+            <div class="heatmap-legend-box" style="background:#1d9e75"></div><span>suave</span>
+            <div class="heatmap-legend-box" style="background:#ef9f27"></div><span>media</span>
+            <div class="heatmap-legend-box" style="background:#e24b4a"></div><span>fuerte</span>
+            <div class="heatmap-legend-box" style="background:#22c1d9"></div><span>PR</span>
+          </div>
+        </div>
+        <div class="heatmap-stats">
+          <div class="heatmap-stat">
+            <div class="heatmap-stat-val" id="hm-activos">—</div>
+            <div class="heatmap-stat-lbl">Días activos</div>
+          </div>
+          <div class="heatmap-stat">
+            <div class="heatmap-stat-val" id="hm-prs">—</div>
+            <div class="heatmap-stat-lbl">PRs logrados</div>
+          </div>
+          <div class="heatmap-stat">
+            <div class="heatmap-stat-val" id="hm-pct">—</div>
+            <div class="heatmap-stat-lbl">% activo</div>
+          </div>
+        </div>
+      </div>
+
       <div class="stats-row fade-up">
         <div class="stat-cell"><div class="stat-val" id="g-sesiones">—</div><div class="stat-lbl">Sesiones</div></div>
         <div class="stat-cell"><div class="stat-val" id="g-kms">—</div><div class="stat-lbl">km totales</div></div>
@@ -410,6 +449,8 @@ option{background:var(--bg2)}
 
 <div class="toast" id="toast"></div>
 
+<div class="heatmap-tooltip" id="hm-tooltip"></div>
+  
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ── CONFIG ────────────────────────────────────────────
