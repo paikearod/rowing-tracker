@@ -713,6 +713,7 @@ async function cargarDashboard() {
 
     document.getElementById('dash-loading').style.display = 'none';
     document.getElementById('dash-content').style.display = 'block';
+    cargarPrediccion();
   } catch(err) {
     document.getElementById('dash-loading').innerHTML =
       '<span style="color:var(--red);font-size:12px;font-family:var(--mono)">Error cargando datos</span>';
@@ -1005,6 +1006,66 @@ async function cargarGraficos() {
   }
 }
 
+// ══════════════════════════════════════════════════════
+// PREDICCIÓN HACIA META
+// ══════════════════════════════════════════════════════
+async function cargarPrediccion() {
+  try {
+    const res = await fetch(`${API_URL}?accion=prediccion`);
+    const p   = await res.json();
+
+    if (!p.ok) return;
+
+    const card = document.getElementById('prediccion-card');
+    card.style.display = 'block';
+    card.classList.remove('alcanzada','actualizar');
+
+    const msgEl = document.getElementById('pred-mensaje');
+
+    // Estilizar el mensaje según el caso
+    if (p.semanasRestantes === 0) {
+      // Meta alcanzada
+      card.classList.add('alcanzada');
+      msgEl.innerHTML = '🎉 <span class="resaltado">¡Meta alcanzada!</span>';
+      document.getElementById('pred-fecha').style.display = 'none';
+    } else if (p.mensaje && p.mensaje.indexOf('actualizar') !== -1) {
+      // Necesita nuevo test
+      card.classList.add('actualizar');
+      msgEl.innerHTML = '<span class="gold">Cerca de la meta</span><br>Haz un nuevo Test FTP para actualizar';
+      document.getElementById('pred-fecha').style.display = 'none';
+    } else if (p.semanasRestantes !== null) {
+      // Predicción normal
+      const semanas = p.semanasRestantes;
+      msgEl.innerHTML = `Llegas a <span class="resaltado">2:12</span> en<br><span class="resaltado">${semanas}</span> ${semanas === 1 ? 'semana' : 'semanas'}`;
+
+      if (p.fechaEstimadaTexto) {
+        document.getElementById('pred-fecha').style.display = 'block';
+        document.getElementById('pred-fecha-text').textContent = p.fechaEstimadaTexto;
+      }
+    } else {
+      // Sin tendencia clara
+      msgEl.innerHTML = '<span class="gold">Sin tendencia clara todavía</span><br>Haz tu primer Test FTP para proyectar';
+      document.getElementById('pred-fecha').style.display = 'none';
+    }
+
+    // Confianza
+    document.getElementById('pred-conf-text').textContent = p.confianzaTexto || '';
+    const dot = document.getElementById('pred-conf-dot');
+    dot.className = 'conf-dot ' + (p.confianza || '');
+
+    // Pendiente (velocidad de mejora)
+    const pendEl = document.getElementById('pred-pendiente');
+    if (p.pendienteSegSemana && p.pendienteSegSemana < 0) {
+      pendEl.textContent = `↓ ${Math.abs(p.pendienteSegSemana).toFixed(1)} seg/sem`;
+    } else {
+      pendEl.textContent = '';
+    }
+
+  } catch(err) {
+    console.error('Error cargando predicción:', err);
+  }
+}
+  
 // ── INIT ─────────────────────────────────────────────
 initFecha();
 initDurPicker();
